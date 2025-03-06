@@ -43,7 +43,6 @@ public class Graph
                 {
                     continue;
                 }
-
                 if (r - 1 >= 0 && grid[r - 1, c] >= 0)
                 {
                     nodes[index].adjacents.Add(nodes[index - cols]); //U
