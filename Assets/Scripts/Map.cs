@@ -100,17 +100,22 @@ public class Map
     }
     public void ClearsFogPlayerAround(int index, int array)
     {
-        for (int r = index - array; r < array + index; r++)
+        int centerRow = index / columns;
+        int centerCol = index % columns;
+
+        for (int r = centerRow - array; r <= centerRow + array; r++)
         {
-            for (int c = index - array; c < array + index; c++)
+            for (int c = centerCol - array; c <= centerCol + array; c++)
             {
-                int deleteIndex = r * columns + c;
-                if (deleteIndex > 0 && deleteIndex < columns * rows)
+                // 경계를 벗어나지 않는지 확인
+                if (r >= 0 && r < rows && c >= 0 && c < columns)
+                {
+                    int deleteIndex = r * columns + c;
                     tiles[deleteIndex].foggy = false;
+                }
             }
         }
     }
-
     // 랜드맵을 생성하는 메서드
     public bool createIsLand(
         int erodeIterations,

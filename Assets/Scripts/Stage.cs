@@ -84,6 +84,8 @@ public class Stage : MonoBehaviour
                 pos.x += tileSize.x;
 
                 tileObjs.Add(newGo);
+                if (player != null)
+                    
                 DecorateTile(id);
 
             }
@@ -111,6 +113,7 @@ public class Stage : MonoBehaviour
             player = Instantiate(playerPrefab, GetTilePos(playerSave.id), Quaternion.identity);
             map.ClearsFogPlayerAround(WorldPosToTileId(player.transform.position), fowDeleteArray);
             map.UpdateAutoFowTileId();
+            ChackedTileFog();
             return;
         }
         else
@@ -133,6 +136,14 @@ public class Stage : MonoBehaviour
         else
         {
             ren.sprite = islandSprites[map.tiles[tileId].autoTileId];
+        }
+        Debug.Log($"{map.tiles[tileId].foggy}");
+    }
+    public void ChackedTileFog()
+    {
+        for (int i = 0; i < map.tiles.Length; i++)
+        {
+            DecorateTile(i);
         }
     }
     private void Update()
