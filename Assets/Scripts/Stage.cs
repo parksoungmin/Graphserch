@@ -150,11 +150,13 @@ public class Stage : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            var tileId = ScreenPosToTileId(Input.mousePosition);
+            int tileId = ScreenPosToTileId(Input.mousePosition);
+            Tile targetTile = map.tiles[tileId];
 
-            Debug.Log(tileId);
-            Debug.Log(GetTilePos(tileId));
-            Debug.Log(map.tiles[tileId].autoTileId);
+            if (targetTile != null && targetTile.Weight != int.MaxValue)
+            {
+                StartCoroutine(MoverPlayer(targetTile));
+            }
         }
     }
     public int ScreenPosToTileId(Vector3 screenPos) // 스크린 좌표계의 타일 아이디
@@ -178,5 +180,22 @@ public class Stage : MonoBehaviour
     {
         return tileObjs[tileId].transform.position;
     }
+    private IEnumerator MoverPlayer(Tile targetTile)
+    {
+        if (playerSave == null || targetTile == null) 
+            yield break;
 
+        List<Tile> movePath = map.AStar(playerSave, targetTile);
+        if (movePath.Count == 0)
+            yield break;
+
+        foreach (Tile step in movePath)
+        {
+            player.transform.position = GetTilePos(step.id);
+            playerSave = step;
+            map.ClearsFogPlayerAround(WorldPosToTileId(player.transform.position), fowDeleteArray);
+            ChackedTileFog();
+            yield return new WaitForSeconds(0.2f);
+        }
+    }
 }

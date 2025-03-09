@@ -6,13 +6,18 @@ public class Player : MonoBehaviour
 {
     public Animator animator;
     public float speed = 2f;
+    public Map map;
+    public Stage stage;
 
     public void Update()
     {
-        //transform.position
-    } 
-    public IEnumerable MoverPlayer()
-    {
-        yield return new WaitForSeconds(speed);
+        //if (Input.GetMouseButtonDown(0))
+        //{
+        //    var tileId = stage.ScreenPosToTileId(Input.mousePosition);
+
+        //    Debug.Log(tileId);
+        //    Debug.Log(stage.GetTilePos(tileId));
+        //    Debug.Log(map.tiles[tileId].autoTileId);
+        //}
     }
 }

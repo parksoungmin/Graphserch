@@ -16,7 +16,8 @@ public class Map
     private bool castleSpwn = false; // 성이 생성되었는지 여부
     public bool playerSpwn = false;  // 플레이어가 스폰되었는지 여부
 
-
+    int maxIterations = 1000;
+    int iteration = 0;
 
     // 해안가 타일(특정 ID 범위 내에 있는 타일) 필터링
     public Tile[] CoastTiles => tiles.Where(x => x.autoTileId >= 0 && x.autoTileId < (int)TileTypes.Grass).ToArray();
@@ -232,10 +233,9 @@ public class Map
     public List<Tile> AStar(Tile start, Tile end)
     {
         List<Tile> path = new List<Tile>();
-
+        Debug.Log("AStar() 함수 호출됨");
         var visited = new HashSet<Tile>();
         var queue = new PriorityQueue<Tile, int>(Comparer<int>.Create((x, y) => x.CompareTo(y)));
-
         var distances = new int[tiles.Length];
         var scores = new int[tiles.Length];
 
@@ -256,6 +256,12 @@ public class Map
             if (currentTile == end)
             {
                 success = true;
+                break;
+            }
+
+            if (iteration++ > maxIterations)
+            {
+                Debug.LogError("A* 탐색 중단: 무한 루프 감지");
                 break;
             }
 
