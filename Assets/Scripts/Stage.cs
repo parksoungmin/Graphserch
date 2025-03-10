@@ -11,7 +11,7 @@ public class Stage : MonoBehaviour
     public int mapWidth = 20;
     public int mapHeight = 20;
     public Vector2 tileSize = new Vector2(16, 16);
-
+    private Coroutine coroutine;
     public Map map;
 
     public GameObject tilePrefab;
@@ -24,6 +24,7 @@ public class Stage : MonoBehaviour
     public GameObject player;
     public int fowDeleteArray = 10;
     private bool playerSpwn = false;
+    private bool moving = false;
 
     private void Start()
     {
@@ -85,8 +86,8 @@ public class Stage : MonoBehaviour
 
                 tileObjs.Add(newGo);
                 if (player != null)
-                    
-                DecorateTile(id);
+
+                    DecorateTile(id);
 
             }
             pos.x = startPos.x;
@@ -112,7 +113,6 @@ public class Stage : MonoBehaviour
         {
             player = Instantiate(playerPrefab, GetTilePos(playerSave.id), Quaternion.identity);
             map.ClearsFogPlayerAround(WorldPosToTileId(player.transform.position), fowDeleteArray);
-            map.UpdateAutoFowTileId();
             ChackedTileFog();
             return;
         }
@@ -146,19 +146,6 @@ public class Stage : MonoBehaviour
             DecorateTile(i);
         }
     }
-    private void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            int tileId = ScreenPosToTileId(Input.mousePosition);
-            Tile targetTile = map.tiles[tileId];
-
-            if (targetTile != null && targetTile.Weight != int.MaxValue)
-            {
-                StartCoroutine(MoverPlayer(targetTile));
-            }
-        }
-    }
     public int ScreenPosToTileId(Vector3 screenPos) // 스크린 좌표계의 타일 아이디
     {
         return WorldPosToTileId(Camera.main.ScreenToWorldPoint(screenPos));
@@ -180,14 +167,35 @@ public class Stage : MonoBehaviour
     {
         return tileObjs[tileId].transform.position;
     }
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            int tileId = ScreenPosToTileId(Input.mousePosition);
+            Tile targetTile = map.tiles[tileId];
+
+            if (targetTile != null && targetTile.Weight != int.MaxValue)
+            {
+                if (coroutine != null)
+                {
+                    StopCoroutine(coroutine);
+                }
+                coroutine = StartCoroutine(MoverPlayer(targetTile));
+            }
+        }
+    }
     private IEnumerator MoverPlayer(Tile targetTile)
     {
-        if (playerSave == null || targetTile == null) 
+        if (playerSave == null || targetTile == null)
+        {
             yield break;
 
+        }
         List<Tile> movePath = map.AStar(playerSave, targetTile);
         if (movePath.Count == 0)
+        {
             yield break;
+        }
 
         foreach (Tile step in movePath)
         {
@@ -195,7 +203,7 @@ public class Stage : MonoBehaviour
             playerSave = step;
             map.ClearsFogPlayerAround(WorldPosToTileId(player.transform.position), fowDeleteArray);
             ChackedTileFog();
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(0.1f);
         }
     }
 }

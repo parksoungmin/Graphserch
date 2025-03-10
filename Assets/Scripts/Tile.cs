@@ -26,7 +26,7 @@ public class Tile
     public static readonly int[] tableWeight =
     {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        2, 4, int.MaxValue, 1, 1, 1
+        int.MaxValue, 4, int.MaxValue, 1, 1, 1
     };
     public int Weight
     {

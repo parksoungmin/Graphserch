@@ -78,21 +78,22 @@ public class Map
                 int index = r * columns + c; // 현재 타일의 배열 내 위치
                 tiles[index].fowTileId = 0;
                 int count = 1 << (int)Sides.Up;
-                if (r - 1 >= 0) // 위쪽 타일 연결
+
+                if (r - 1 >= 0 && tiles[index - columns].foggy) // 위쪽 타일 연결
                 {
                     // Count 는 1을 4번을 'LeftShift' 하여 8로 만든 후 다시 Side의 Up 인 4 만큼 'RightShift'하여 1로 만든다.
                     tiles[index].fowTileId |= count >> (int)Sides.Up;
                 }
-                if (c + 1 < columns) // 오른쪽 타일 연결
+                if (c + 1 < columns && tiles[index + 1].foggy) // 오른쪽 타일 연결
                 {
                     // Count 는 1을 4번을 'LeftShift' 하여 8로 만든 후 다시 Side의 Right인 1만큼 'RightShift'하여 4로 만든다.
                     tiles[index].fowTileId |= count >> (int)Sides.Right;
                 }
-                if (r + 1 < rows) // 아래쪽 타일 연결
+                if (r + 1 < rows && tiles[index + columns].foggy) // 아래쪽 타일 연결
                 {
                     tiles[index].fowTileId |= count >> (int)Sides.Down; // Count 는 1을 4번을 'LeftShift' 하여 8로 만든 후 다시 Side의 Down인 0만큼 'RightShift'하여 8로 만든다.
                 }
-                if (c - 1 >= 0) // 왼쪽 타일 연결
+                if (c - 1 >= 0 && tiles[index - 1].foggy) // 왼쪽 타일 연결
                 {
                     tiles[index].fowTileId |= count >> (int)Sides.Left; // Count 는 1을 4번을 'LeftShift' 하여 8로 만든 후 다시 Side의 Left인 2만큼 'RightShift'하여 2로 만든다.
                 }
@@ -116,6 +117,7 @@ public class Map
                 }
             }
         }
+        UpdateAutoFowTileId();
     }
     // 랜드맵을 생성하는 메서드
     public bool createIsLand(
@@ -218,6 +220,14 @@ public class Map
         return false; // 경로가 없으면 false 반환
     }
 
+    private void ResetPrevious()
+    {
+        foreach (var tile in tiles)
+        {
+            tile.previous = null;
+        }
+    }
+
     // 휴리스틱 함수 (맨해튼 거리 사용)
     private int Heuristic(Tile a, Tile b)
     {
@@ -228,16 +238,17 @@ public class Map
 
         return Mathf.Abs(ax - bx) + Mathf.Abs(ay - by); // 거리 계산
     }
-
     // A* 경로 탐색 알고리즘
     public List<Tile> AStar(Tile start, Tile end)
     {
         List<Tile> path = new List<Tile>();
         Debug.Log("AStar() 함수 호출됨");
+
         var visited = new HashSet<Tile>();
         var queue = new PriorityQueue<Tile, int>(Comparer<int>.Create((x, y) => x.CompareTo(y)));
         var distances = new int[tiles.Length];
         var scores = new int[tiles.Length];
+        ResetPrevious();
 
         for (int i = 0; i < distances.Length; ++i)
         {
@@ -256,12 +267,6 @@ public class Map
             if (currentTile == end)
             {
                 success = true;
-                break;
-            }
-
-            if (iteration++ > maxIterations)
-            {
-                Debug.LogError("A* 탐색 중단: 무한 루프 감지");
                 break;
             }
 

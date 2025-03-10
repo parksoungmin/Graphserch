@@ -11,13 +11,5 @@ public class Player : MonoBehaviour
 
     public void Update()
     {
-        //if (Input.GetMouseButtonDown(0))
-        //{
-        //    var tileId = stage.ScreenPosToTileId(Input.mousePosition);
-
-        //    Debug.Log(tileId);
-        //    Debug.Log(stage.GetTilePos(tileId));
-        //    Debug.Log(map.tiles[tileId].autoTileId);
-        //}
     }
 }
